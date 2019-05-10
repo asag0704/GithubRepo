@@ -1,5 +1,6 @@
 package com.wonn.githubrepo.network;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -17,5 +18,5 @@ public interface RetrofitService {
 
     // username/repos
     @GET("{username}/repos")
-    Call<JsonObject> repos(@Path("username")String username);
+    Call<JsonArray> repos(@Path("username")String username);
 }

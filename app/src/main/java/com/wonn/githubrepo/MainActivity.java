@@ -4,12 +4,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.wonn.githubrepo.adapter.ReposAdapter;
+import com.wonn.githubrepo.model.Repository;
 import com.wonn.githubrepo.model.UserInfo;
 import com.wonn.githubrepo.network.RetrofitClient;
 import com.wonn.githubrepo.network.RetrofitService;
@@ -19,6 +22,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+
     RecyclerView rv_main_repos;
     ReposAdapter adapter;
 
@@ -29,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
         init();
 
-        getUserInfo("asag074");
+        getUserInfo("asag0704");
     }
 
     private void init() {
@@ -41,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         rv_main_repos.setAdapter(adapter);
     }
 
-    private void getUserInfo(String username) {
+    private void getUserInfo(final String username) {
         RetrofitService service = RetrofitClient.createService(RetrofitService.class);
         Call<JsonObject> userInfo = service.userInfo(username);
         userInfo.enqueue(new Callback<JsonObject>() {
@@ -56,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
                     adapter.addItem(user);
                     adapter.notifyDataSetChanged();
+
+                    getRepos(username);
                 }
             }
 
@@ -68,15 +75,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void getRepos(String username) {
         RetrofitService service = RetrofitClient.createService(RetrofitService.class);
-        Call<JsonObject> repos = service.repos(username);
-        repos.enqueue(new Callback<JsonObject>() {
+        Call<JsonArray> repos = service.repos(username);
+        repos.enqueue(new Callback<JsonArray>() {
             @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+            public void onResponse(Call<JsonArray> call, Response<JsonArray> response) {
 
             }
 
             @Override
-            public void onFailure(Call<JsonObject> call, Throwable t) {
+            public void onFailure(Call<JsonArray> call, Throwable t) {
 
             }
         });
