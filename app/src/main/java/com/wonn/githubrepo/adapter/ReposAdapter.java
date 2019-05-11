@@ -3,6 +3,7 @@ package com.wonn.githubrepo.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,14 +16,16 @@ import com.wonn.githubrepo.model.UserInfo;
 
 import java.util.ArrayList;
 
-public class ReposAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements BaseAdapter.View, BaseAdapter.Model<Object> {
+public class ReposAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements BaseAdapter.View, BaseAdapter.Model<Repository> {
     private Context context;
-    private ArrayList<Object> arrayList = new ArrayList<>();
+    private ArrayList<Repository> repositories = new ArrayList<>();
+    private UserInfo userInfo = null;
 
-    private static final int TYPE_USER = -1;
-    private static final int TYPE_REPOS = 0;
+    private static final int TYPE_USERINFO = -1;
+    private static final int TYPE_REPOSITOTY = 0;
 
-    public ReposAdapter() {
+    public ReposAdapter(UserInfo userInfo) {
+        this.userInfo = userInfo;
     }
 
     @NonNull
@@ -30,44 +33,50 @@ public class ReposAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View view = null;
         this.context = viewGroup.getContext();
-        if (viewType == TYPE_USER) {
-            view = LayoutInflater.from(context).inflate(R.layout.item_repository, viewGroup, false);
-            return new ReposViewHolder(view);
-        } else {
-            view = LayoutInflater.from(context).inflate(R.layout.item_userinfo, viewGroup, false);
+        if (viewType == TYPE_USERINFO) {
+            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_userinfo, viewGroup, false);
             return new UserInfoViewHolder(view);
+        } else if (viewType == TYPE_REPOSITOTY) {
+            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_repository, viewGroup, false);
+            return new ReposViewHolder(view);
         }
+        return null;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof ReposViewHolder) {
-            Repository repo = (Repository) arrayList.get(position);
-            ReposViewHolder reposViewHolder = (ReposViewHolder) holder;
+        if (holder instanceof UserInfoViewHolder) {
+            if (userInfo != null) {
+                UserInfoViewHolder userInfoViewHolder = (UserInfoViewHolder) holder;
 
-            reposViewHolder.tv_repos_name.setText(repo.getName());
-            reposViewHolder.tv_repos_description.setText(repo.getDescription());
-            reposViewHolder.tv_repos_star.setText(repo.getStarCount());
-        } else {
-            UserInfo userInfo = (UserInfo) arrayList.get(position);
-            UserInfoViewHolder userInfoViewHolder = (UserInfoViewHolder) holder;
+                Glide.with(context).asBitmap().load(userInfo.getAvatar_url()).into(userInfoViewHolder.iv_userInfo_thumbnail);
+                userInfoViewHolder.tv_userInfo_username.setText(userInfo.getName());
+            }
+        } else if (holder instanceof ReposViewHolder) {
+            if (repositories.size() != 0) {
+                Repository repository = repositories.get(position-1);
+                ReposViewHolder reposViewHolder = (ReposViewHolder) holder;
+                Log.d("Adapter", "onBindViewHolder: " + repository.getName() + " position: " + position);
 
-            Glide.with(context).asBitmap().load(userInfo.getAvatar_url()).into(userInfoViewHolder.iv_userInfo_thumbnail);
-            userInfoViewHolder.tv_userInfo_username.setText(userInfo.getName());
+                reposViewHolder.tv_repos_name.setText(repository.getName());
+                if (repository.getDescription() != null) {
+                    reposViewHolder.tv_repos_description.setText(repository.getDescription());
+                }
+            }
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (arrayList.size() == 0) {
-            return TYPE_USER;
+        if (position == 0) {
+            return TYPE_USERINFO;
         }
-        return TYPE_REPOS;
+        return TYPE_REPOSITOTY;
     }
 
     @Override
     public int getItemCount() {
-        return arrayList.size();
+        return repositories.size()+1;
     }
 
     @Override
@@ -76,17 +85,18 @@ public class ReposAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     @Override
-    public void addItem(Object models) {
-        arrayList.add(models);
+    public void addItem(Repository models) {
+        repositories.add(models);
     }
 
     @Override
-    public Object getItem(int position) {
-        return arrayList.get(position);
+    public Repository getItem(int position) {
+        return repositories.get(position);
     }
 
     @Override
     public void clear() {
-        arrayList.clear();
+        repositories.clear();
     }
 }
+

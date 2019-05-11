@@ -11,19 +11,21 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import com.wonn.githubrepo.adapter.ReposAdapter;
 import com.wonn.githubrepo.model.Repository;
 import com.wonn.githubrepo.model.UserInfo;
 import com.wonn.githubrepo.network.RetrofitClient;
 import com.wonn.githubrepo.network.RetrofitService;
 
+import java.lang.reflect.Type;
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
-
     RecyclerView rv_main_repos;
     ReposAdapter adapter;
 
@@ -39,11 +41,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         rv_main_repos = findViewById(R.id.rv_main_repos);
-        adapter = new ReposAdapter();
 
         rv_main_repos.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
         rv_main_repos.setHasFixedSize(false);
-        rv_main_repos.setAdapter(adapter);
     }
 
     private void getUserInfo(final String username) {
@@ -57,11 +57,9 @@ public class MainActivity extends AppCompatActivity {
                             .getAsJsonObject();
                     UserInfo user = new Gson().fromJson(element, UserInfo.class);
 
-                    adapter.clear();
-
-                    adapter.addItem(user);
-                    adapter.notifyDataSetChanged();
-
+                    adapter = new ReposAdapter(user);
+                    rv_main_repos.setAdapter(adapter);
+                    adapter.notifyAdapter();
                     getRepos(username);
                 }
             }
@@ -79,7 +77,23 @@ public class MainActivity extends AppCompatActivity {
         repos.enqueue(new Callback<JsonArray>() {
             @Override
             public void onResponse(Call<JsonArray> call, Response<JsonArray> response) {
-
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        for (JsonElement element: response.body()) {
+                            Repository repository = new Gson().fromJson(element.getAsJsonObject(), Repository.class);
+                            adapter.addItem(repository);
+                            Log.d("Recyclerview", "getRepo: " + repository.getName());
+                        }
+                        adapter.notifyAdapter();
+                    }
+//                    for (int i = 0; i < response.body().size(); i++) {
+//                        adapter.addItem(new Repository(
+//                                response.body().get(i).getAsJsonObject().get("name").getAsString(),
+//                                response.body().get(i).getAsJsonObject().get("description").getAsString(),
+//                                12
+//                        ));
+//                    }
+                }
             }
 
             @Override
@@ -89,3 +103,4 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 }
+
