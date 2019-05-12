@@ -11,15 +11,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
-import com.wonn.githubrepo.adapter.ReposAdapter;
+import com.wonn.githubrepo.adapter.RepositoryAdapter;
 import com.wonn.githubrepo.model.Repository;
 import com.wonn.githubrepo.model.UserInfo;
 import com.wonn.githubrepo.network.RetrofitClient;
 import com.wonn.githubrepo.network.RetrofitService;
 
-import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Collections;
+import java.util.Comparator;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,7 +26,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     RecyclerView rv_main_repos;
-    ReposAdapter adapter;
+    RepositoryAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
         init();
 
-        getUserInfo("asag0704");
+        getUserInfo("jakewharton");
     }
 
     private void init() {
@@ -57,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                             .getAsJsonObject();
                     UserInfo user = new Gson().fromJson(element, UserInfo.class);
 
-                    adapter = new ReposAdapter(user);
+                    adapter = new RepositoryAdapter(user);
                     rv_main_repos.setAdapter(adapter);
                     adapter.notifyAdapter();
                     getRepos(username);
@@ -84,15 +83,9 @@ public class MainActivity extends AppCompatActivity {
                             adapter.addItem(repository);
                             Log.d("Recyclerview", "getRepo: " + repository.getName());
                         }
+                        adapter.sort();
                         adapter.notifyAdapter();
                     }
-//                    for (int i = 0; i < response.body().size(); i++) {
-//                        adapter.addItem(new Repository(
-//                                response.body().get(i).getAsJsonObject().get("name").getAsString(),
-//                                response.body().get(i).getAsJsonObject().get("description").getAsString(),
-//                                12
-//                        ));
-//                    }
                 }
             }
 

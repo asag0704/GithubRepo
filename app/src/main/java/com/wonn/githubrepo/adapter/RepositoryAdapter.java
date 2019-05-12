@@ -15,8 +15,10 @@ import com.wonn.githubrepo.model.Repository;
 import com.wonn.githubrepo.model.UserInfo;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
-public class ReposAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements BaseAdapter.View, BaseAdapter.Model<Repository> {
+public class RepositoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements BaseAdapter.View, BaseAdapter.Model<Repository> {
     private Context context;
     private ArrayList<Repository> repositories = new ArrayList<>();
     private UserInfo userInfo = null;
@@ -24,7 +26,7 @@ public class ReposAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static final int TYPE_USERINFO = -1;
     private static final int TYPE_REPOSITOTY = 0;
 
-    public ReposAdapter(UserInfo userInfo) {
+    public RepositoryAdapter(UserInfo userInfo) {
         this.userInfo = userInfo;
     }
 
@@ -62,6 +64,7 @@ public class ReposAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 if (repository.getDescription() != null) {
                     reposViewHolder.tv_repos_description.setText(repository.getDescription());
                 }
+                reposViewHolder.tv_repos_star.setText(String.valueOf(repository.getStarCount()));
             }
         }
     }
@@ -97,6 +100,15 @@ public class ReposAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void clear() {
         repositories.clear();
+    }
+
+    public void sort() {
+        Collections.sort(repositories, new Comparator<Repository>() {
+            @Override
+            public int compare(Repository o1, Repository o2) {
+                return (o2.getStarCount() - o1.getStarCount());
+            }
+        });
     }
 }
 
