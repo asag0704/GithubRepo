@@ -1,5 +1,7 @@
 package com.wonn.githubrepo;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,6 +27,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "DeepLink";
+    private static final String DEFAULT_URL = "testapp://repos/";
     RecyclerView rv_main_repos;
     RepositoryAdapter adapter;
 
@@ -35,7 +39,19 @@ public class MainActivity extends AppCompatActivity {
 
         init();
 
-        getUserInfo("jakewharton");
+        Intent intent = getIntent();
+        if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getDataString() != null) {
+            String userName = intent.getDataString().replace(DEFAULT_URL, "");
+            if (userName.length() == 0) {
+                getUserInfo("jakewharton");
+            } else {
+                Log.d(TAG, "parameter: " + userName);
+                getUserInfo(userName);
+            }
+        } else {
+            getUserInfo("jakewharton");
+        }
+
     }
 
     private void init() {
