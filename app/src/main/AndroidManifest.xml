@@ -18,9 +18,13 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
+
+                <!--make be able to open activity in browser-->
                 <category android:name="android.intent.category.BROWSABLE"/>
 
+                <!--testapp://repos/{parameter}-->
                 <data
                     android:scheme="testapp"
                     android:host="repos"/>

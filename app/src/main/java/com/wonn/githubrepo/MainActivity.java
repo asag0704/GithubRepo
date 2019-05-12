@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (Intent.ACTION_VIEW.equals(intent.getAction()) && intent.getDataString() != null) {
+            // get parameter without default url
             String userName = intent.getDataString().replace(DEFAULT_URL, "");
             if (userName.length() == 0) {
                 getUserInfo("jakewharton");
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-
+                Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonArray> call, Throwable t) {
-
+                Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
             }
         });
     }
